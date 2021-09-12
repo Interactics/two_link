@@ -4,7 +4,6 @@
 #include <vector>
 #include <cmath>
 
-
 // Domain Gen
 std::vector<double> createDomain(const double start, const double end, const double step);
 std::vector<double> PointToPoint(const std::vector<double> domain, const double q_i, const double q_f, const double dq_i, const double dq_f, const double t_i, const double t_f);
@@ -15,12 +14,15 @@ double cubicPolynomial(double a3, double a2, double a1, double a0, double x);
 // Trapezodial
 double qt(double q_i, double q_f, double ddq_c, double t_f, double t); // Pos
 std::vector<double> trapezoidalVelocityProfile(double q_i, double q_f, double ddq_c, double t_f, const std::vector<double> domain);
+
+// Sgn function
 double sgn_func(double x);
 
-int main(int argc, char **argv){
-	ros::init(argc, argv, "traj_gen");
+int main(int argc, char **argv)
+{
+    ros::init(argc, argv, "traj_gen");
     ros::NodeHandle n;
-	ros::Publisher path_pub = n.advertise<std_msgs::Float64>("/two_link/joint1_position_controller/command", 100);
+    ros::Publisher path_pub = n.advertise<std_msgs::Float64>("/two_link/joint1_position_controller/command", 100);
 
     ros::Rate loop_rate(100);
 
@@ -36,33 +38,33 @@ int main(int argc, char **argv){
     double ddq_c = 6 * M_PI; // 선정해야하지만, 임의로 선택.
 
     std::vector<double> t = createDomain(t_i, t_f, timeStep);                // 정의역
-    // Cubic
-	std::vector<double> q = PointToPoint(t, q_i, q_f, dq_i, dq_f, t_i, t_f); // 치역
+                                                                             // Cubic
+    std::vector<double> q = PointToPoint(t, q_i, q_f, dq_i, dq_f, t_i, t_f); // 치역
 
-	// Trapezoidal
+    // Trapezoidal
     // std::vector<double> q = trapezoidalVelocityProfile(q_i, q_f, ddq_c, t_f, t);
 
-	std_msgs::Float64 msg;
+    std_msgs::Float64 msg;
 
     float velocity = 0.0;
-	while(ros::ok())
-	{
-		for(int t = 0; t < 1000; t++)
-		{
-			msg.data = q[t];
+    while (ros::ok())
+    {
+        for (int t = 0; t < 1000; t++)
+        {
+            msg.data = q[t];
 
-		    path_pub.publish(msg);
-		    loop_rate.sleep();
-		}
-        for(int t = 1000; t > 0; t--)
-		{
-			msg.data = q[t];
+            path_pub.publish(msg);
+            loop_rate.sleep();
+        }
+        for (int t = 1000; t > 0; t--)
+        {
+            msg.data = q[t];
 
-		    path_pub.publish(msg);
-		    loop_rate.sleep();
-		}
-	}
-	return 0;
+            path_pub.publish(msg);
+            loop_rate.sleep();
+        }
+    }
+    return 0;
 }
 
 std::vector<double> createDomain(const double start, const double end, const double step)
@@ -76,9 +78,10 @@ std::vector<double> createDomain(const double start, const double end, const dou
 }
 
 std::vector<double> PointToPoint(const std::vector<double> domain,
-                                 const double q_i,  const double q_f,
+                                 const double q_i, const double q_f,
                                  const double dq_i, const double dq_f,
-                                 const double t_i,  const double t_f){
+                                 const double t_i, const double t_f)
+{
 
     std::vector<double> range; // 치역
 
@@ -100,7 +103,6 @@ double cubicPolynomial(
 {
     return a3 * pow(x, 3) + a2 * pow(x, 2) + a1 * x + a0;
 }
-
 
 double sgn_func(double x)
 {

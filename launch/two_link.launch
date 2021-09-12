@@ -26,7 +26,7 @@
      args="-urdf -model two_link -param robot_description"/>
  
    <!-- ros_control two_link launch file -->
-   <!--include file="$(find two_link)/launch/two_link_control.launch" /-->
+   <include file="$(find two_link)/launch/control.launch" />
  
  </launch>
 

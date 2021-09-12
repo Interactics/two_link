@@ -10,6 +10,7 @@ std::vector<double> PointToPoint(const std::vector<double> domain, const double 
 
 // Cubic Poly
 double cubicPolynomial(double a3, double a2, double a1, double a0, double x);
+std::vector<double> find_trj_coeff_imposed_vel(double t1, double p1, double v1, double t2, double p2, double v2);
 
 // Trapezodial
 double qt(double q_i, double q_f, double ddq_c, double t_f, double t); // Pos
@@ -17,6 +18,8 @@ std::vector<double> trapezoidalVelocityProfile(double q_i, double q_f, double dd
 
 // Sgn function
 double sgn_func(double x);
+
+
 
 int main(int argc, char **argv)
 {
@@ -84,19 +87,18 @@ std::vector<double> PointToPoint(const std::vector<double> domain,
 {
 
     std::vector<double> range; // 치역
+    std::vector<double> coeff;
 
-    double a0 = q_i;
-    double a1 = dq_i;
-    double a2 = 3 / pow(t_f, 2) * (q_f - q_i) - 2 / t_f * dq_i - 1 / t_f * dq_f;
-    double a3 = -2 / pow(t_f, 3) * (q_f - q_i) + 1 / pow(t_f, 2) * (dq_f + dq_i);
-
+	coeff = find_trj_coeff_imposed_vel(t_i, q_i, dq_i, t_f, q_f, dq_f);
+    
     for (int i = 0; i < domain.size(); ++i)
     { // ++i가 더 빠름
-        range.push_back(cubicPolynomial(a3, a2, a1, a0, domain[i]));
+        range.push_back(cubicPolynomial(coeff[3], coeff[2], coeff[1], coeff[0], domain[i]));
     }
 
     return range;
 }
+
 
 double cubicPolynomial(
     double a3, double a2, double a1, double a0, double x)
@@ -155,3 +157,25 @@ double qt(
     }
     return q;
 }
+
+
+// c3*t^3 + c2*t^2 + c1*t + c0 = q(t)
+// Interpolating polynomials with imposed velocities at path points 
+std::vector<double> find_trj_coeff_imposed_vel(double t1, double p1, double v1, double t2, double p2, double v2)
+{
+	std::vector<double> coeff(4);
+
+	coeff[0] = -(p1 * pow(t2,3) - p2 * pow(t1, 3) - 3.0f * p1 * t1 * pow(t2, 2) + 3.0f * p2 * pow(t1,2) * t2 - t1 * pow(t2,3) * v1 + pow(t1, 3) * t2 * v2 + pow(t1, 2) * pow(t2, 2) * v1 
+			-pow(t1, 2) * pow(t2, 2) * v2) / ((t1 - t2) * (pow(t1,2) - 2.0f * t1 * t2 + pow(t2, 2))); 
+
+    coeff[1] = (pow(t1,3) * v2 - pow(t2,3) * v1 - t1 * pow(t2,2) * v1 + 2.0f * pow(t1,2) * t2 * v1 - 2.0f * t1 * pow(t2,2) * v2 + pow(t1, 2) * t2 * v2 - 6.0f * p1 * t1 * t2 + 
+		6 * p2 * t1 * t2) / ((t1 - t2) *(pow(t1,2) - 2*t1*t2 + pow(t2,2)));
+
+    coeff[2] = (3.0f*p1*t1 + 3.0f*p1*t2 - 3.0f*p2*t1 - 3.0f*p2*t2 -pow(t1,2)*v1 - 2*pow(t1,2) * v2 + 2*pow(t2,2) * v1 + pow(t2,2) * v2 - t1*t2*v1 + t1*t2*v2)/((t1 - t2)*(pow(t1,2) - 2.0f*t1*t2 + pow(t2,2)));
+
+    coeff[3] = -(2.0f*p1 - 2.0f * p2 - t1*v1 - t1*v2 + t2*v1 + t2*v2)/((t1 - t2)*(pow(t1,2) - 2.0f*t1*t2 + pow(t2,2)));
+
+	return coeff;
+}
+
+

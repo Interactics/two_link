@@ -23,9 +23,13 @@ include_directories(include ${catkin_INCLUDE_DIRS})
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(trj_node src/trajectory.cpp)
-target_link_libraries(trj_node  ${catkin_LIBRARIES})
-## add_dependencies(trj_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_executable(point2point_node src/point2point_trj.cpp)
+target_link_libraries(point2point_node  ${catkin_LIBRARIES})
+
+add_executable(sequence_point_node src/sequence_point_trj.cpp)
+target_link_libraries(sequence_point_node  ${catkin_LIBRARIES})
+#
+## add_dependencies(point2point_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 #############
 ## Install ##
